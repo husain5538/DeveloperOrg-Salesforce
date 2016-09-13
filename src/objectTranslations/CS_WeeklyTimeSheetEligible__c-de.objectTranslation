@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value>WeeklyTimeSheetEligible</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value>WeeklyTimeSheetEligible</value>
+    </caseValues>
+    <fields>
+        <label><!-- CreateWeeklyTimeSheet --></label>
+        <name>CreateWeeklyTimeSheet__c</name>
+    </fields>
+    <gender>Neuter</gender>
+</CustomObjectTranslation>

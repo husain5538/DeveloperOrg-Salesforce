@@ -1,0 +1,11 @@
+Hi {!Project_Member__c.Member__c},
+
+You are assigned a new project.
+Please check the below details about project,
+Prohect Name: {!Project__c.Name}
+Project  Lead: {!Project__c.Project_Lead__c}
+Start Date: {!Project__c.Start_Date__c}
+Due Date: {!Project__c.Due_Date__c}
+
+Thanks
+{!Project__c.Project_Lead__c}

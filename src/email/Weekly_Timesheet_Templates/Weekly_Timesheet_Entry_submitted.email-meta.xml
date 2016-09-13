@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>This template mail will be forwarded to approver once timesheet is submitted fro approval</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Weekly Timesheet Entry submitted</name>
+    <style>none</style>
+    <subject>Weekly Timesheet - {!Weekly_Time_Entry__c.Name} has been submitted for approval</subject>
+    <type>text</type>
+</EmailTemplate>

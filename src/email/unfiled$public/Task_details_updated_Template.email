@@ -1,0 +1,7 @@
+Hi {!{!Assigned_Task__c.Assigned_To__c},
+
+A new task has been updated related to project :{!Assigned_Task__c.Project__c}.
+
+Please check details: {!Assigned_Task__c.Link}
+
+Thanks

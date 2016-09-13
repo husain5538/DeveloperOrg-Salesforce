@@ -1,0 +1,13 @@
+Hi ,
+
+Weekly Timesheet entry has been submitted with following details.
+
+Submitted By: {!Weekly_Time_Entry__c.OwnerFullName}
+Aggregate Billing Amount : {!Weekly_Time_Entry__c.Aggregate_Billing_Amount__c}
+Aggregate Hours : {!Weekly_Time_Entry__c.Aggregate_hours__c}
+Number of Time Entries: {!Weekly_Time_Entry__c.Number_of_Time_Entries__c}
+
+Detail page link: {!Weekly_Time_Entry__c.Link}
+
+
+Thanks

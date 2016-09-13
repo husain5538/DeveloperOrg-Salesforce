@@ -1,0 +1,8 @@
+<!-- 
+ CreatedBy: Shadab Hussain
+ Purpose: This page to hold the Timer Component and bind it to detail page.
+-->
+<apex:page standardController="Assigned_Task__c">
+<c:Timer_Component />
+
+</apex:page>

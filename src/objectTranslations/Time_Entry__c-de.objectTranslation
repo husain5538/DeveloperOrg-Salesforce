@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>false</plural>
+        <value>Time Entry</value>
+    </caseValues>
+    <caseValues>
+        <caseType>Nominative</caseType>
+        <plural>true</plural>
+        <value>Time Entries</value>
+    </caseValues>
+    <fields>
+        <label><!-- Amount --></label>
+        <name>Amount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Billed Amount --></label>
+        <name>Billed_Amount__c</name>
+    </fields>
+    <fields>
+        <label><!-- Current Week --></label>
+        <name>Current_Week__c</name>
+    </fields>
+    <fields>
+        <label><!-- D2subD1 --></label>
+        <name>D2subD1__c</name>
+    </fields>
+    <fields>
+        <label><!-- End Time --></label>
+        <name>End_Time__c</name>
+    </fields>
+    <fields>
+        <label><!-- IsCompleted? --></label>
+        <name>IsCompleted__c</name>
+    </fields>
+    <fields>
+        <label><!-- Is Paused --></label>
+        <name>Is_Paused__c</name>
+    </fields>
+    <fields>
+        <label><!-- Last Paused Time --></label>
+        <name>Last_Paused_Time__c</name>
+    </fields>
+    <fields>
+        <label><!-- Related Task --></label>
+        <name>Related_Task__c</name>
+        <relationshipLabel><!-- Time Entries --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Related User --></label>
+        <name>Related_User__c</name>
+        <relationshipLabel><!-- Time Entries --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Start Time --></label>
+        <name>Start_Time__c</name>
+    </fields>
+    <fields>
+        <label><!-- Time Spent --></label>
+        <name>Time_Spent__c</name>
+    </fields>
+    <fields>
+        <label><!-- Total Time Spent --></label>
+        <name>Total_Time_Spent__c</name>
+    </fields>
+    <fields>
+        <label><!-- Weekly Time Entry --></label>
+        <name>Weekly_Time_Entry__c</name>
+        <relationshipLabel><!-- Time Entries --></relationshipLabel>
+    </fields>
+    <gender>Neuter</gender>
+</CustomObjectTranslation>

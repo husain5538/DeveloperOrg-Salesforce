@@ -1,0 +1,382 @@
+<apex:component controller="TimerHelper">
+<html>
+ <style>
+ .container {
+    width: 600px;
+    height: auto;
+    left: 50%;
+    top: 20%;
+    margin-left: -300px;
+    margin-top: -160px;
+    position: absolute;
+    text-align: center;
+    background: #1F2C2C;
+    border-radius: 5px;
+    border: 1px solid rgba(0,0,0,0.5);
+    box-shadow: 0 0 5px rgba(0,0,0,0.85), 0 0 3px rgba(255,255,255,0.75) inset;
+    color: #ccc;
+}
+
+#counter {
+    position: relative;
+    letter-spacing: 2px;
+    font-family: impact;
+    font-size: 10em;
+    color: #617680;
+    text-shadow: 1px 1px 1px rgba(173, 242, 255, 0.8), 0 0 10px rgba(0,0,0,0.5);
+}
+
+#time {
+    font-family: helvetica;
+    padding: 10px;
+    width: 30%;
+    background: #332211;
+    border-radius: 5px;
+    margin: 25px auto;
+    margin-bottom: 0;
+    box-shadow: 0 0 5px rgba(0,0,0,0.75), 0 0 2px rgba(255,255,255,0.75) inset;
+    text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.8);
+}
+
+hr {
+    width: 80%;
+    border-bottom: 1px solid rgba(0,0,0,.25);
+    box-shadow: 0px 1px 1px rgba(0,0,0,0.7);
+    margin-top: -3px;
+}
+
+#controls button {
+    //display: inline-block;
+    position: relative;
+    margin: 20px 5px 30px;
+    padding: 10px;
+    text-align: center;
+    width: 15%;
+    background: #ACACAC;
+    color: #222;
+    font-family: impact;
+    font-size: 18pt;
+    border-radius: 5px;
+    text-shadow: 1px 1px 3px rgba(252, 252, 252, 0.8);
+    cursor: pointer;
+}
+
+div#newTimeButton {
+    font-size: 1em;
+    padding: 12px 10px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    height: 22px;
+    top: -5px;
+}
+
+div#newTimeButton:active {
+    top: -2px;
+    box-shadow: 0 3px 1px rgba(200,200,200,.5), 0 0 4px rgba(255,255,255,.85) inset;
+}
+
+#newTime {
+    width: 46%;
+    background: #EEE;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 5px;
+    border: none;
+    height: 44px;
+    position: relative;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    left: -10px;
+    box-shadow: 0 5px 1px rgba(200, 200, 200, .5), 0 0 4px rgba(255, 255, 255, .85) inset;
+    font-family: impact;
+    letter-spacing: 2px;
+    font-size: 1.5em;
+}
+
+#controls form {
+    display: inline-block;
+    width: 25%;
+}
+
+.controlPress {
+    top: 3px;
+    box-shadow: 0 2px 1px rgba(200,200,200,.5), 0 0 4px rgba(255,255,255,.85) inset;
+}
+
+.controlRelease {
+    box-shadow: 0 5px 1px rgba(200,200,200,.5), 0 0 4px rgba(255,255,255,.85) inset;
+     -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+.hideClass{
+    display: none;
+  }
+  .showClass{
+    display: '';
+  }​
+ </style>
+ <style>
+  .hideClass{
+    display: none;
+  }
+  .showClass{
+    display: '';
+  }
+</style>
+<body>
+<div class="container">
+  <p id="counter"> <span id="my_timer" >00:00:00:00</span></p>
+ <div id="controls"><button id="control"  onclick="changeState();">START</button>
+ <button id="resumecontrol" class="hideClass" onclick="resumeState();" >RESUME</button>
+ <button id="pausecontrol"  onclick="pauseState();">PAUSE</button>
+ <button id="reset"  onclick="reset();">RESET</button>
+ <button id="stopcontrol" onclick="stop();">STOP</button></div>
+</div>
+
+</body>
+<script>
+
+var active =false;
+window.onload = function() {
+  checktimeronLoad();
+};
+//now to start the timer
+function start_timer(){
+    if(active){
+        var timer = document.getElementById("my_timer").textContent;
+        var arr = timer.split(":"); //spliting time to get exact hours,mins,secs
+        
+        var days = arr[0];
+        var hour = arr[1];
+        var min = arr[2];
+        var sec = arr[3];
+        console.log("timer is started"+ hour);
+        console.log("timer is started"+ min);
+        console.log("timer is started"+ sec);
+        if(sec == 59){
+            if(min == 59){
+                hour++;
+                min= 0;
+                if(hour < 10) hour = "0" + hour;
+                if(hour == 23){
+                 days++
+                 if(days < 10) days = "0" + days;
+                }
+            }else {
+                min++;
+            }
+            if(min < 10) min ="0"+ min;
+                sec = 0;
+            
+        }else{
+            sec++;
+            console.log("timer is started secc"+ sec);
+            if(sec < 10) sec = "0" + sec;
+        }
+        // update our timer html
+        document.getElementById("my_timer").textContent = days + ":"+ hour + ":" + min + ":" + sec;
+        console.log("timer is started"+ document.getElementById("my_timer").textContent);
+        setTimeout(start_timer,1000);
+    }
+}
+function changeState(){
+        if(active == false){
+            active = true;
+            //document.getElementById("control").style.display = "none";
+            //document.getElementById("pausecontrol").style.display = "block";
+            document.getElementById("control").className = "hideClass";
+            document.getElementById("pausecontrol").className = "showClass";
+            start_timer();
+            if(time == '')
+            createTimeEntryonStart();
+            console.log("Timer has been started");
+            
+            //document.getElementById("control").innnerHTML="PAUSE";
+        }
+        else{
+            active = false;
+            console.log("timer is paused");
+            //document.getElementById("control").textContent= "START";
+            //document.getElementById("control").style.display = "block";
+            document.getElementById("control").className = "hideClass";
+            document.getElementById("stopcontrol").className = "showClass";
+        }
+
+    }
+    function pauseState(){
+            active = false;
+            console.log("timer is paused");
+            updateTimeSpentonPause('Pause');
+            //document.getElementById("control").textContent= "START";
+            //document.getElementById("resumecontrol").style.display = "block";
+            document.getElementById("resumecontrol").className = "showClass";
+            document.getElementById("pausecontrol").className = "hideClass";
+            document.getElementById("control").className = "hideClass";
+            //document.getElementById("pausecontrol").style.display = "none";
+        }
+function resumeState(){
+            if(active == false){
+            active = true;
+           // document.getElementById("resumecontrol").style.display = "none";
+           // document.getElementById("pausecontrol").style.display = "block";
+            document.getElementById("pausecontrol").className = "showClass";
+            document.getElementById("resumecontrol").className = "hideClass";
+            start_timer();
+            updateTimeSpentonPause('Resume');
+            console.log("Timer has been resumed");
+            
+            //document.getElementById("control").innnerHTML="PAUSE";
+        }
+            //document.getElementById("control").style.display = "block";
+            //document.getElementById("pausecontrol").style.display = "none";
+        }
+
+
+function reset(){
+    document.getElementById("my_timer").textContent = "00" + ":" +"00" + ":" + "00" + ":" + "00";
+    console.log("timer has been reset");
+    document.getElementById("control").className = "showClass";
+    //document.getElementById("control").disbaled= true;
+    //document.getElementById("stopconrol").disbaled= true;
+}
+function stop(){
+    if(active == true){
+        active = false;
+        updateTimeSpentonPause('Stop');
+        time == '';
+        console.log("timer is stopped");
+    }
+    document.getElementById("pausecontrol").className = "hideClass";
+    //document.getElementById("control").className = "showClass";
+    document.getElementById("reset").className = "showClass";
+    document.getElementById("resumecontrol").className = "hideClass";
+    document.getElementById("stopcontrol").className = "hideClass";
+    //document.getElementById("control").disbaled= true;
+}
+/*document.getElementById("stopcontrol").onclick = function() {
+    //disable
+    this.disabled = true;
+
+    //do some validation stuff
+}*/
+
+function msToHMS( ms ) {
+    // 1- Convert to seconds:
+    var seconds = ms / 1000;
+    // 2- Extract hours:
+    var hours = parseInt( seconds / 3600 ); // 3,600 seconds in 1 hour
+    seconds = seconds % 3600; // seconds remaining after extracting hours
+    // 3- Extract minutes:
+    var minutes = parseInt( seconds / 60 ); // 60 seconds in 1 minute
+    // 4- Keep only seconds not extracted to minutes:
+    seconds = Math.floor(seconds % 60);
+    alert( hours+":"+minutes+":"+seconds);
+}
+function msToHMS_new( ms ) {
+    // 1- Convert to seconds:
+    var seconds = ms / 1000;
+    // 2- Extract hours:
+
+    var hours = parseInt( seconds / 3600 ); // 3,600 seconds in 1 hour
+var days = parseInt( hours / 24 ); // 3,600 seconds in 1 hour
+    hours= parseInt( hours % 24 );
+seconds = seconds % 3600; // seconds remaining after extracting hours
+    // 3- Extract minutes:
+    var minutes = parseInt( seconds / 60 ); // 60 seconds in 1 minute
+    // 4- Keep only seconds not extracted to minutes:
+    seconds = Math.floor(seconds % 60);
+    if(days < 10) days = "0" + days;
+    if(hours < 10) hours = "0" + hours;
+    if(minutes < 10) minutes = "0" + minutes;
+    if(seconds < 10) seconds = "0" + seconds;
+    
+    console.log( days+":"+hours+":"+minutes+":"+seconds);
+    return days+":"+hours+":"+minutes+":"+seconds;
+}
+var time = '';
+var currentTimeEntryId ='';
+var isPaused ='OFF';
+var validateAssignedUser ='OFF';
+function checktimeronLoad(){
+    Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.TimerHelper.getCurrentTimeEntryDetailsremote}',
+                    '{!$currentPage.parameters.id}',
+                    function(result, event){
+                        if(result != null){
+                            time = result.split("@@@@####@@@@")[0];
+                            currentTimeEntryId = result.split("@@@@####@@@@")[1];
+                            isPaused = result.split("@@@@####@@@@")[2];
+                            validateAssignedUser = result.split("@@@@####@@@@")[3];
+                            console.log('time ==='+time);
+                            console.log('currentTimeEntryId ==='+currentTimeEntryId);
+                            console.log('isPaused ==='+isPaused);
+                            console.log('validateAssignedUser ==='+validateAssignedUser);
+                            if(time != ''){
+                                stringValueforTime = msToHMS_new(time);
+                                console.log('--'+stringValueforTime);
+                                document.getElementById("my_timer").textContent = stringValueforTime;
+                                if(isPaused == "ON"){
+                                    pauseState();
+                                }
+                                else if(isPaused == "OFF"){
+                                    changeState();
+                                }
+                                
+                            }else{
+                                console.log('--else');
+                                document.getElementById("pausecontrol").className = "hideClass";
+                            }
+                            if(validateAssignedUser == 'OFF'){
+                                document.getElementById("controls").className = "hideClass";
+                            }
+                            else if(validateAssignedUser == 'ON'){
+                                document.getElementById("controls").className = "showClass";
+                            }
+                            
+                        
+                        }
+                        
+                    });
+}
+    function createTimeEntryonStart(){
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.TimerHelper.createTimeEntry}',
+            '{!$currentPage.parameters.id}',
+            function(result, event){
+                if(result != null){
+                    currentTimeEntryId = result;
+                    console.log('currentTimeEntryId---'+currentTimeEntryId);
+                
+                }
+                
+            });
+        }
+        function updateTimeSpentonPause(whatClicked){
+        var currentTime = document.getElementById("my_timer").textContent
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.TimerHelper.updateTimerEntry}',
+              currentTimeEntryId,
+              currentTime,
+              whatClicked,
+            function(result, event){
+                if(result != null){
+                    
+                }
+                
+            });
+        }
+
+
+</script>
+ 
+ 
+
+
+ 
+</html>
+</apex:component>
