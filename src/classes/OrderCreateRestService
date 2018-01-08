@@ -1,6 +1,6 @@
 @RestResource(urlMapping='/ordercreate/*')
 global with sharing class OrderCreateRestService {
-    
+    /*wrapper to hold data*/
     global class RequestWrapper {
         
         public String payloadSize;
@@ -9,6 +9,7 @@ global with sharing class OrderCreateRestService {
         public List<OrderList> orderList;
         
     }
+    /*Parse and map data from the response*/
     global class ResponseWrapper
     {
         public Boolean success;
@@ -56,7 +57,7 @@ global with sharing class OrderCreateRestService {
         return (RequestWrapper) System.JSON.deserialize(json, RequestWrapper.class);
     }
     
-    
+    /* Post Method to create records in Salesforce from external system once called*/
     @HttpPost
     global static responseWrapper doPost() {
         //json will be taken directly from RestContext
@@ -70,6 +71,8 @@ global with sharing class OrderCreateRestService {
         List<Opportunity> insertOpportunityList = new List<Opportunity>();
         List<OpportunityContactRole> insertOpportunityContactRoleList = new List<OpportunityContactRole>();
         Map<Id, Id> accountContactIdMap = new Map<Id,Id>();
+
+        // set End Point incase of roll back is required
         Savepoint savePoint = Database.setSavepoint();
         try{
             for(OrderList oRecord : orderList){
@@ -84,7 +87,7 @@ global with sharing class OrderCreateRestService {
                     BillingState = blankCheck(oRecord.oState),
                     BillingCountry = blankCheck(oRecord.oCountryCode)
                 );
-                
+                // insert Account after parsing the JSON from body
                 insertAccountList.add(accountRec);
             }
             
@@ -106,7 +109,7 @@ global with sharing class OrderCreateRestService {
                     MailingState = blankCheck(accRecord.BillingState),
                     MailingCountry = blankCheck(accRecord.BillingCountry)
                 );  
-                
+                // insert contact after parsing the JSON from body
                 insertContactList.add(contactRec); 
                 Opportunity opportunityRec = new Opportunity(
                     Name = blankCheck(accRecord.Name) + '- Opportunity', 
@@ -145,13 +148,16 @@ global with sharing class OrderCreateRestService {
             
             List<Account> insertedAccounts = [select id,name,(select id,name from contacts), (select id,name from opportunities) from Account where id in: insertAccountList];
             system.debug('Serialize =='+Json.serialize(new responseWrapper(true, 'Records created successfully',payloadId, insertedAccounts)));
+            // retrurn resonse once callout is successfull with Paload Id and List of records
             return new responseWrapper(true, 'Records created successfully',payloadId, insertedAccounts);
         }
         catch(Exception ex){
+            // rollbak once exeption is encountered
             Database.rollback(savePoint);
             return new responseWrapper(false, 'Error occured creating the records - ' + ex.getMessage(),payloadId, null);
         }
     }
+    /*Helper Method for blanks check of string*/
     private static String blankCheck(String value){
         string returnVal =String.isNotBlank(value)?value:'';
         return returnVal;
