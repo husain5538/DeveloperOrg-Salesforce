@@ -1,0 +1,159 @@
+@RestResource(urlMapping='/ordercreate/*')
+global with sharing class OrderCreateRestService {
+    
+    global class RequestWrapper {
+        
+        public String payloadSize;
+        public String payloadId;
+        public String operationType;
+        public List<OrderList> orderList;
+        
+    }
+    global class ResponseWrapper
+    {
+        public Boolean success;
+        public String errorMessage;
+        public String payLoadId;
+        public List<Account> response;
+        
+        public ResponseWrapper(Boolean success,string errMsg,String requestPayloadId, List<Account> accounts )
+        {
+            if (success == true)
+            {
+                this.errorMessage = '';
+                this.payLoadId = requestPayloadId;
+                this.response = accounts;
+            }
+            else
+            {   
+                this.errorMessage = errMsg;
+                this.payLoadId = requestPayloadId;
+                this.response = accounts;
+            }
+            
+            this.success = success;
+        }
+    }
+    
+    global class OrderList {
+        public String oFirstName;
+        public String oLastName;
+        public String oEmail;
+        public String oPhone;
+        public String oCurrencyCode;
+        public String oStreet;
+        public String oCity;
+        public String oState;
+        public String oCountryCode;
+        public String oZip;
+        public String oStage;
+        
+        
+    }
+    
+    
+    global static RequestWrapper parse(String json) {
+        return (RequestWrapper) System.JSON.deserialize(json, RequestWrapper.class);
+    }
+    
+    
+    @HttpPost
+    global static responseWrapper doPost() {
+        //json will be taken directly from RestContext
+        RequestWrapper requestWrapperRecord =  new RequestWrapper();
+        requestWrapperRecord = OrderCreateRestService.parse(RestContext.request.requestBody.tostring());
+        String PayLoadId = requestWrapperRecord.payloadId;
+        List<OrderList> orderList =  OrderCreateRestService.parse(RestContext.request.requestBody.tostring()).orderList;
+        system.debug('orderList values --'+orderList);
+        List<Account> insertAccountList = new List<Account>();
+        List<Contact> insertContactList = new List<Contact>();
+        List<Opportunity> insertOpportunityList = new List<Opportunity>();
+        List<OpportunityContactRole> insertOpportunityContactRoleList = new List<OpportunityContactRole>();
+        Map<Id, Id> accountContactIdMap = new Map<Id,Id>();
+        Savepoint savePoint = Database.setSavepoint();
+        try{
+            for(OrderList oRecord : orderList){
+                Account accountRec = new account(
+                    Name = blankCheck(oRecord.oFirstName +' '+ oRecord.oLastName), 
+                    Phone = blankCheck(oRecord.oPhone),
+                    Primary_Email__c = blankCheck(oRecord.oEmail),
+                    Currency_ISO_Code__c = blankCheck(oRecord.oCurrencyCode),
+                    BillingStreet = blankCheck(oRecord.oStreet),
+                    BillingCity = blankCheck(oRecord.oCity),
+                    BillingPostalCode = blankCheck(oRecord.oZip),
+                    BillingState = blankCheck(oRecord.oState),
+                    BillingCountry = blankCheck(oRecord.oCountryCode)
+                );
+                
+                insertAccountList.add(accountRec);
+            }
+            
+            system.debug('insertAccountList=='+insertAccountList);
+            DataBase.insert(insertAccountList,false);
+            
+            
+            for(Account accRecord : insertAccountList){
+                Contact contactRec = new Contact(
+                    FirstName = blankCheck(accRecord.Name.split(' ')[0]),
+                    LastName = blankCheck(accRecord.Name.split(' ')[1]), 
+                    Phone = blankCheck(accRecord.Phone),
+                    Email = blankcheck(accRecord.Primary_Email__C),
+                    AccountId = accRecord.Id,
+                    Currency_ISO_Code__c = blankCheck(accRecord.Currency_ISO_Code__c),
+                    MailingStreet = blankCheck(accRecord.BillingStreet),
+                    MailingCity = blankCheck(accRecord.BillingCity),
+                    MailingPostalCode = blankCheck(accRecord.BillingPostalCode),
+                    MailingState = blankCheck(accRecord.BillingState),
+                    MailingCountry = blankCheck(accRecord.BillingCountry)
+                );  
+                
+                insertContactList.add(contactRec); 
+                Opportunity opportunityRec = new Opportunity(
+                    Name = blankCheck(accRecord.Name) + '- Opportunity', 
+                    StageName = Label.Opportunity_Stage,
+                    AccountID = accRecord.Id,
+                    CloseDate = System.Today().addMonths(3),
+                    Currency_ISO_Code__c = blankCheck(accRecord.Currency_ISO_Code__c)
+                ); 
+                insertOpportunityList.add(opportunityRec);   
+                
+                
+            }
+            if(!insertContactList.isEmpty()){
+                Database.insert(insertContactList,false);
+            }
+            for(Contact contact : insertContactList){
+                accountContactIdMap.put(contact.AccountId, contact.Id);     
+            }
+            system.debug('accountContactIdMap =='+accountContactIdMap+'===size=='+accountContactIdMap.size());
+            if(!insertOpportunityList.isEmpty()){
+                database.insert(insertOpportunityList,false);
+            }
+            
+            for(opportunity opportunity : insertOpportunityList){
+                OpportunityContactRole opportunitContactRoleRecord = new OpportunityContactRole(
+                    OpportunityId=opportunity.id, 
+                    ContactId=accountContactIdMap.get(opportunity.Accountid),
+                    isPrimary = true,
+                    Role = Label.OpportunityContactRole
+                ); 
+                insertOpportunityContactRoleList.add(opportunitContactRoleRecord);
+            }
+            if(!insertOpportunityContactRoleList.isEmpty()){
+                database.insert(insertOpportunityContactRoleList,false);
+            }
+            
+            List<Account> insertedAccounts = [select id,name,(select id,name from contacts), (select id,name from opportunities) from Account where id in: insertAccountList];
+            system.debug('Serialize =='+Json.serialize(new responseWrapper(true, 'Records created successfully',payloadId, insertedAccounts)));
+            return new responseWrapper(true, 'Records created successfully',payloadId, insertedAccounts);
+        }
+        catch(Exception ex){
+            Database.rollback(savePoint);
+            return new responseWrapper(false, 'Error occured creating the records - ' + ex.getMessage(),payloadId, null);
+        }
+    }
+    private static String blankCheck(String value){
+        string returnVal =String.isNotBlank(value)?value:'';
+        return returnVal;
+    }
+}
