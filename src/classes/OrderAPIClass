@@ -1,0 +1,45 @@
+@RestResource(urlMapping='/OrderCreate/*')
+global with sharing class OrderAPIClass {
+
+    @HttpDelete
+    global static void doDelete() {
+        RestRequest req = RestContext.request;
+        RestResponse res = RestContext.response;
+        String orderId = req.requestURI.substring(req.requestURI.lastIndexOf('/')+1);
+        order order = [SELECT Id FROM order WHERE Id = :orderId];
+        delete order;
+    }
+  
+    @HttpGet
+    global static order doGet() {
+        RestRequest req = RestContext.request;
+        RestResponse res = RestContext.response;
+        String orderId = req.requestURI.substring(req.requestURI.lastIndexOf('/')+1);
+        order result = [SELECT Id, OrderNumber, Amount, Status FROM order WHERE Id = :orderId];
+        return result;
+    }
+  
+  @HttpPost
+    global static String doPost(String orderNumber,
+        String amount, String status) {
+        order order = new order();
+        order.OrderNumber_Ext__c = orderNumber;
+        order.Amount = amount;
+        order.Status = status;
+        insert order;
+        return order.Id;
+    }
+
+    @HttpPut
+    global static String doPut(String name,
+        String phone, String website, string orderId) {
+        order order = new order();
+        order.OrderNumber_Ext__c = orderNumber;
+        order.Amount = amount;
+        order.Status = status;
+        order.Id =orderId;
+        upsert order;
+        return order.Id;
+    }
+       
+}
